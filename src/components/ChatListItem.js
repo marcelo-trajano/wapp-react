@@ -16,7 +16,11 @@ export default () => {
         </div>
         <div className="chatListItem-line">
           <div className="chatListItem-lastMsg">
-            <p>how are you?</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ul
+            </p>
           </div>
         </div>
       </div>
