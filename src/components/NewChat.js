@@ -1,50 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import Api from "../Api";
 import "./NewChat.css";
 
-export default ({ showNewChatWindown, setshowNewChatWindown }) => {
-  const [contactList, setcontactList] = useState([
-    {
-      id: 123,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 45454,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 6494121,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 7777878848,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 599552262,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 599552262,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 599552262,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-    {
-      id: 599552262,
-      name: "Courtney",
-      avatar: "https://randomuser.me/api/portraits/women/14.jpg",
-    },
-  ]);
+export default ({ showNewChatWindown, setshowNewChatWindown, sessionUser }) => {
+  const [contactList, setcontactList] = useState([]);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      if (sessionUser !== null) {
+        const users = await Api.getContactList(sessionUser);
+        setcontactList(users);
+      }
+    };
+    getUsers();
+  }, [sessionUser]);
+
+  const startNewChat = async (user2) => {
+    await Api.addNewChat(sessionUser, user2);
+    setshowNewChatWindown(false);
+  };
 
   return (
     <div
@@ -65,7 +40,13 @@ export default ({ showNewChatWindown, setshowNewChatWindown }) => {
       <div className="newChat--contactList">
         {contactList.map((item, key) => {
           return (
-            <div className="newChat--contactList--item">
+            <div
+              key={key}
+              className="newChat--contactList--item"
+              onClick={() => {
+                startNewChat(item);
+              }}
+            >
               <img
                 className="newChat--contactList--item--imgContact"
                 src={item.avatar}
