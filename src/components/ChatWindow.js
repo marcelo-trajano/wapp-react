@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Api from "../Api";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SearchIcon from "@material-ui/icons/Search";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
@@ -15,6 +16,8 @@ export default ({ activeChat, sessionUser }) => {
   const [showEmojiPicker, setshowEmojiPicker] = useState(false);
   const [message, setmessage] = useState("");
   const [listening, setlistening] = useState(false);
+  const [messages, setmessages] = useState([]);
+  const [users, setusers] = useState([]);
 
   const body = useRef();
 
@@ -27,11 +30,17 @@ export default ({ activeChat, sessionUser }) => {
   }
 
   useEffect(() => {
+    setmessages([]);
+    let unsub = Api.onChatContent(activeChat.chat_id, setmessages, setusers);
+    return unsub;
+  }, [activeChat.chat_id]);
+
+  useEffect(() => {
     if (body.current.scrollHeight > body.current.offsetHeight) {
       body.current.scrollTop =
         body.current.scrollHeight - body.current.offsetHeight;
     }
-  }, [activeChat.conversation]);
+  }, [messages]);
 
   const handleEmojiClick = (e, data) => {
     setmessage(message + data.emoji);
@@ -52,14 +61,26 @@ export default ({ activeChat, sessionUser }) => {
     }
   };
 
-  const handleSendMessageClick = () => {};
+  const handleSendMessageClick = () => {
+    if (message !== "") {
+      Api.sendMessage(activeChat, sessionUser.id, "text", message, users);
+      setmessage("");
+      setshowEmojiPicker(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.keyCode === 13) {
+      handleSendMessageClick();
+    }
+  };
 
   return (
     <div className="chatWindow">
       <div className="chatWindow--header">
         <div className="chatWindow--header--userInfo">
           <img className="chatWindow--header--avatar" src={activeChat.avatar} />
-          <div className="chatWindow--header--userName">{activeChat.name}</div>
+          <div className="chatWindow--header--userName">{activeChat.title}</div>
         </div>
         <div className="chatWindow--header--buttons">
           <div className="chatWindow--header--btn">
@@ -75,7 +96,7 @@ export default ({ activeChat, sessionUser }) => {
       </div>
 
       <div ref={body} className="chatWindow--body">
-        {activeChat.conversation.map((item, key) => {
+        {messages.map((item, key) => {
           return (
             <MessageItem
               key={key}
@@ -128,6 +149,9 @@ export default ({ activeChat, sessionUser }) => {
             value={message}
             onChange={(e) => {
               setmessage(e.target.value);
+            }}
+            onKeyUp={(e) => {
+              handleKeyPress(e);
             }}
           ></input>
         </div>

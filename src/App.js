@@ -14,11 +14,7 @@ import "./App.css";
 export default () => {
   const [activeChat, setactiveChat] = useState({});
   const [showNewChatWindown, setshowNewChatWindown] = useState(false);
-  const [sessionUser, setsessionUser] = useState({
-    id: "SdYmxveCKfb5udkx1aZiYI59qzD3",
-    name: "Marcelo Trajano",
-    avatar: "https://graph.facebook.com/3965461600137305/picture",
-  });
+  const [sessionUser, setsessionUser] = useState(null);
 
   const [chatList, setChatList] = useState([]);
 
@@ -29,7 +25,19 @@ export default () => {
     }
   }, [sessionUser]);
 
-  const handleUserLogin = async (user) => {
+  const loginFirebase = async (user) => {
+    console.log(user);
+
+    let newUser = {
+      id: user.uid,
+      name: "Ana",
+      avatar: "https://randomuser.me/api/portraits/women/37.jpg",
+    };
+    await Api.addUser(newUser);
+    setsessionUser(newUser);
+  };
+
+  const loginFacebook = async (user) => {
     console.log(user);
 
     let newUser = {
@@ -42,7 +50,9 @@ export default () => {
   };
 
   if (sessionUser === null) {
-    return <Login onReceive={handleUserLogin} />;
+    return (
+      <Login loginFacebook={loginFacebook} loginFirebase={loginFirebase} />
+    );
   }
 
   return (
